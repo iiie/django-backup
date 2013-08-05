@@ -166,6 +166,7 @@ class Command(BaseCommand):
             self.passwd = settings.DATABASES['default']['PASSWORD']
             self.host = settings.DATABASES['default']['HOST']
             self.port = settings.DATABASES['default']['PORT']
+            self.schema = settings.DATABASES['default'].get('SCHEMA', None)
         except NameError:
             self.engine = settings.DATABASE_ENGINE
             self.db = settings.DATABASE_NAME
@@ -362,6 +363,10 @@ class Command(BaseCommand):
 
         if self.passwd:
             os.environ['PGPASSWORD'] = self.passwd
+
+        if hasattr(self, 'schema'):
+            args += ['-n %s' % self.schema]
+
         pgdump_cmd = '%s %s --clean > %s' % (pgdump_path, ' '.join(args), outfile)
         print pgdump_cmd
         os.system(pgdump_cmd)
